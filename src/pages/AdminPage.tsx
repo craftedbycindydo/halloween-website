@@ -435,7 +435,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="bg-black border-orange-500 text-white file:mr-2 sm:file:mr-4 file:py-1.5 sm:file:py-2 file:px-2 sm:file:px-4 file:rounded-full file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-orange-600 file:text-white hover:file:bg-orange-700 cursor-pointer overflow-hidden text-ellipsis"
+                  className="w-full bg-black border-2 border-orange-500 rounded-lg text-purple-300 p-2 
+                    file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 
+                    file:text-sm file:font-semibold file:bg-orange-600 file:text-white 
+                    hover:file:bg-orange-700 file:cursor-pointer cursor-pointer text-sm"
                 />
                 {imagePreview && (
                   <div className="mt-2 relative inline-block">
@@ -483,7 +486,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             className="w-full bg-blue-600 hover:bg-blue-700 h-20 text-lg"
           >
             <Award className="w-6 h-6 mr-2" />
-            Games Leaderboard
+            <span>Games Leaderboard</span>
           </Button>
 
           {/* Manage Games */}
