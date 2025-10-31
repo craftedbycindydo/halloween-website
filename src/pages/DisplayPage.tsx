@@ -86,16 +86,15 @@ export const DisplayPage: React.FC<DisplayPageProps> = ({ contestants }) => {
       const positions: CardPosition[] = [];
       const cardWidth = 200;
       const cardHeight = 260;
-      const navbarHeight = 90;
       const padding = 50;
       
       const availableWidth = window.innerWidth - cardWidth - padding * 2;
-      const availableHeight = window.innerHeight - navbarHeight - cardHeight - padding * 2;
+      const availableHeight = window.innerHeight - cardHeight - padding * 2;
       
       // Spread cards randomly across the entire viewport
       contestants.forEach(() => {
         const x = padding + Math.random() * availableWidth;
-        const y = navbarHeight + padding + Math.random() * availableHeight;
+        const y = padding + Math.random() * availableHeight;
         
         positions.push({ x, y });
       });
@@ -110,7 +109,7 @@ export const DisplayPage: React.FC<DisplayPageProps> = ({ contestants }) => {
 
   if (contestants.length === 0) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="text-8xl mb-4 animate-bounce">👻</div>
           <h2 className="text-3xl font-bold text-orange-500 mb-2">No contestants yet!</h2>
@@ -121,7 +120,7 @@ export const DisplayPage: React.FC<DisplayPageProps> = ({ contestants }) => {
   }
 
   return (
-    <div className="relative h-screen overflow-hidden">
+    <div className="relative h-full overflow-hidden">
       {contestants.map((contestant, index) => {
         const position = cardPositions[index];
         if (!position) return null;
