@@ -99,7 +99,7 @@ export const VotePage: React.FC<VotePageProps> = ({ contestants }) => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8" style={{ minHeight: 'calc(100vh - 80px)' }}>
       <div className="max-w-4xl mx-auto mb-8 bg-black/90 p-6 rounded-xl border-2 border-orange-500 shadow-2xl shadow-orange-900/50">
         <h2 className="text-3xl font-bold text-orange-500 mb-4 text-center">Cast Your Vote! 👻</h2>
         

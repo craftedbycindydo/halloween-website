@@ -148,7 +148,7 @@ export const DisplayPage: React.FC<DisplayPageProps> = ({ contestants }) => {
 
   if (displayContestants.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center" style={{ height: 'calc(100vh - 80px)' }}>
         <div className="text-center">
           <div className="text-8xl mb-4 animate-bounce">👻</div>
           <h2 className="text-3xl font-bold text-orange-500 mb-2">No contestants yet!</h2>
@@ -159,7 +159,7 @@ export const DisplayPage: React.FC<DisplayPageProps> = ({ contestants }) => {
   }
 
   return (
-    <div className="relative h-full overflow-hidden">
+    <div className="relative overflow-hidden" style={{ height: 'calc(100vh - 80px)' }}>
       {contestWinner && contestWinner.winner_published && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
           <div className="bg-gradient-to-r from-orange-600 via-yellow-500 to-orange-600 text-black px-8 py-4 rounded-full shadow-2xl shadow-orange-500/50 animate-bounce">

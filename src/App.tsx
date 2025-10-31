@@ -59,11 +59,11 @@ function App() {
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-gradient-to-br from-black via-purple-950 to-black">
+    <div className="min-h-screen bg-gradient-to-br from-black via-purple-950 to-black">
       <FloatingDecorations />
       <Navbar currentPage={currentPage} onNavigate={setCurrentPage} />
       
-      <main className="h-[calc(100vh-4rem)] sm:h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] overflow-y-auto relative z-10">
+      <main className="relative z-10">
         {currentPage === 'display' && (
           <DisplayPage contestants={contestants} />
         )}
