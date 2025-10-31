@@ -484,9 +484,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
           {/* Games Leaderboard */}
           <Button 
             onClick={handleShowLeaderboard} 
-            className="w-full bg-blue-600 hover:bg-blue-700 h-20 text-lg"
+            className="w-full bg-blue-600 hover:bg-blue-700 h-20 text-lg flex items-center justify-center gap-2"
           >
-            <Award className="w-6 h-6 mr-2" />
+            <Award className="w-6 h-6" />
             <span>Games Leaderboard</span>
           </Button>
 
