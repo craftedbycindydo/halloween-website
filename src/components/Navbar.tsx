@@ -18,7 +18,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
           >
             <h1 className="text-sm sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl font-bold text-white drop-shadow-lg">
               <span className="hidden xs:inline">👻 Spooky Contest 🎃</span>
-              <span className="xs:hidden">👻 Contest 🎃</span>
+              <span className="xs:hidden">👻 Spooky Contest 🎃</span>
             </h1>
           </div>
           
