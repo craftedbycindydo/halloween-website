@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
+import { Card, CardContent, CardTitle, CardDescription } from './ui/card';
 import { Contestant } from '../types';
 
 interface ContestantCardProps {

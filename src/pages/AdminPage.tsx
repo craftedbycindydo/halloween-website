@@ -31,7 +31,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   // Add contestant form
   const [name, setName] = useState('');
   const [costume, setCostume] = useState('');
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   
   // Results dialog
@@ -62,8 +61,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         setError('Image size must be less than 5MB');
         return;
       }
-      
-      setImageFile(file);
       
       // Create preview
       const reader = new FileReader();
@@ -100,7 +97,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       await onAddContestant(newContestant, password);
       setName('');
       setCostume('');
-      setImageFile(null);
       setImagePreview('');
       setError('');
       
@@ -258,18 +254,17 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                       alt="Preview" 
                       className="w-32 h-32 object-cover rounded-lg border-2 border-orange-500"
                     />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setImageFile(null);
-                        setImagePreview('');
-                        const fileInput = document.getElementById('imageFile') as HTMLInputElement;
-                        if (fileInput) fileInput.value = '';
-                      }}
-                      className="absolute top-0 right-0 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700"
-                    >
-                      ×
-                    </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setImagePreview('');
+                              const fileInput = document.getElementById('imageFile') as HTMLInputElement;
+                              if (fileInput) fileInput.value = '';
+                            }}
+                            className="absolute top-0 right-0 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700"
+                          >
+                            ×
+                          </button>
                   </div>
                 )}
               </div>
