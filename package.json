@@ -26,14 +26,14 @@
     "typescript": "^4.9.5"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "cd server && node server.js",
+    "dev:frontend": "react-scripts start",
+    "dev:backend": "cd server && npm run dev",
+    "build": "react-scripts build && cd server && npm install --production",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "server": "cd server && npm run dev",
     "server:setup": "cd server && node config/setup.js",
-    "dev": "concurrently \"npm start\" \"npm run server\"",
-    "deploy": "npm run build && cd server && npm install --production"
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\""
   },
   "eslintConfig": {
     "extends": [
