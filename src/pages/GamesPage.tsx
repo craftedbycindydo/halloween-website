@@ -58,7 +58,7 @@ export const GamesPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 pb-20" style={{ minHeight: 'calc(100vh - 80px)' }}>
+    <div className="container mx-auto px-4 py-8 pb-20 min-h-full">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="text-center">
           <h1 className="text-4xl sm:text-5xl font-bold text-orange-500 mb-2 flex items-center justify-center gap-3">
