@@ -33,7 +33,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   
   // Results dialog
   const [showResults, setShowResults] = useState(false);
-  const [resultsPassword, setResultsPassword] = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
