@@ -39,7 +39,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [games, setGames] = useState<any[]>([]);
   const [gameName, setGameName] = useState('');
   const [selectedGame, setSelectedGame] = useState<any>(null);
-  const [selectedWinnerForGame, setSelectedWinnerForGame] = useState('');
+  const [selectedWinnersPerGame, setSelectedWinnersPerGame] = useState<{[gameId: number]: string[]}>({});
   const [showGamesDialog, setShowGamesDialog] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [overallLeaderboard, setOverallLeaderboard] = useState<any[]>([]);
@@ -188,15 +188,25 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     }
   };
 
-  const handleAddWinnerToGame = async (gameId: number) => {
-    if (!selectedWinnerForGame) {
-      setError('Please select a contestant');
+  const handleAddWinnersToGame = async (gameId: number) => {
+    const selectedWinners = selectedWinnersPerGame[gameId] || [];
+    if (selectedWinners.length === 0) {
+      setError('Please select at least one contestant');
       return;
     }
 
     try {
-      await gamesAPI.addWinner(gameId, selectedWinnerForGame, adminPassword);
-      setSelectedWinnerForGame('');
+      // Add all selected winners
+      for (const contestantId of selectedWinners) {
+        await gamesAPI.addWinner(gameId, contestantId, adminPassword);
+      }
+      
+      // Clear selections for this game
+      setSelectedWinnersPerGame(prev => ({
+        ...prev,
+        [gameId]: []
+      }));
+      
       await loadGames();
       if (selectedGame && selectedGame.id === gameId) {
         const winners = await gamesAPI.getGameWinners(gameId);
@@ -204,8 +214,22 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       }
       setError('');
     } catch (error: any) {
-      setError(error.message || 'Failed to add winner');
+      setError(error.message || 'Failed to add winners');
     }
+  };
+
+  const handleToggleWinnerSelection = (gameId: number, contestantId: string) => {
+    setSelectedWinnersPerGame(prev => {
+      const currentSelections = prev[gameId] || [];
+      const isSelected = currentSelections.includes(contestantId);
+      
+      return {
+        ...prev,
+        [gameId]: isSelected
+          ? currentSelections.filter(id => id !== contestantId)
+          : [...currentSelections, contestantId]
+      };
+    });
   };
 
   const handleDeleteGame = async (gameId: number) => {
@@ -361,7 +385,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 pb-20">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex justify-between items-center flex-wrap gap-4">
           <h1 className="text-4xl font-bold text-orange-500">Admin Dashboard 🎃</h1>
@@ -787,24 +811,32 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     </Button>
                   </div>
 
-                  {/* Add Winner to Game */}
-                  <div className="flex gap-2 pt-2 border-t border-purple-500/30">
-                    <select
-                      value={selectedWinnerForGame}
-                      onChange={(e) => setSelectedWinnerForGame(e.target.value)}
-                      className="flex-1 bg-black border-orange-500 text-white p-2 rounded text-sm"
-                    >
-                      <option value="">Select winner...</option>
+                  {/* Add Winners to Game */}
+                  <div className="pt-2 border-t border-purple-500/30 space-y-2">
+                    <div className="text-sm text-purple-300 mb-2">Select Winners:</div>
+                    <div className="max-h-48 overflow-y-auto space-y-1 mb-2">
                       {contestants.map(c => (
-                        <option key={c.id} value={c.id}>{c.name} ({c.costume})</option>
+                        <label 
+                          key={c.id}
+                          className="flex items-center gap-2 p-2 hover:bg-purple-900/30 rounded cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={(selectedWinnersPerGame[game.id] || []).includes(c.id?.toString() || '')}
+                            onChange={() => handleToggleWinnerSelection(game.id, c.id?.toString() || '')}
+                            className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600 focus:ring-2"
+                          />
+                          <span className="text-sm text-white">{c.name} ({c.costume})</span>
+                        </label>
                       ))}
-                    </select>
+                    </div>
                     <Button
-                      onClick={() => handleAddWinnerToGame(game.id)}
+                      onClick={() => handleAddWinnersToGame(game.id)}
                       size="sm"
-                      className="bg-blue-600 hover:bg-blue-700"
+                      className="w-full bg-blue-600 hover:bg-blue-700"
+                      disabled={(selectedWinnersPerGame[game.id] || []).length === 0}
                     >
-                      Add Winner
+                      Add Selected Winners ({(selectedWinnersPerGame[game.id] || []).length})
                     </Button>
                   </div>
                 </div>

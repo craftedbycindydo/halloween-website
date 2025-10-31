@@ -118,20 +118,21 @@ export const DisplayPage: React.FC<DisplayPageProps> = ({ contestants }) => {
       const cardWidth = 200;
       const cardHeight = 260;
       const padding = 50;
+      const navbarHeight = 80; // Account for navbar
       
       const availableWidth = window.innerWidth - cardWidth - padding * 2;
-      const availableHeight = window.innerHeight - cardHeight - padding * 2;
+      const availableHeight = window.innerHeight - navbarHeight - cardHeight - padding * 2;
       
       // If contest winner is published, center the card
       if (contestWinner && contestWinner.winner_published && displayContestants.length === 1) {
         const x = (window.innerWidth - cardWidth) / 2;
-        const y = (window.innerHeight - cardHeight) / 2;
+        const y = (window.innerHeight - navbarHeight - cardHeight) / 2 + navbarHeight;
         positions.push({ x, y });
       } else {
         // Spread cards randomly across the entire viewport
         displayContestants.forEach(() => {
           const x = padding + Math.random() * availableWidth;
-          const y = padding + Math.random() * availableHeight;
+          const y = navbarHeight + padding + Math.random() * availableHeight;
           
           positions.push({ x, y });
         });
