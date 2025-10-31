@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from './ui/button';
-import { Ghost, Vote, Shield, Trophy } from 'lucide-react';
+import { Vote, Shield, Trophy } from 'lucide-react';
 
 interface NavbarProps {
   currentPage: 'display' | 'vote' | 'games' | 'admin';
@@ -24,17 +24,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
           
           <div className="flex gap-1 sm:gap-2 md:gap-3">
             <Button
-              variant={currentPage === 'display' ? 'default' : 'outline'}
-              onClick={() => onNavigate('display')}
-              size="sm"
-              className={currentPage === 'display' 
-                ? "bg-purple-600 hover:bg-purple-700 text-white border-2 border-purple-400 text-[10px] xs:text-xs sm:text-sm md:text-base px-2 xs:px-3 sm:px-4 md:px-6 py-1 xs:py-1.5 sm:py-2 font-semibold shadow-lg h-7 xs:h-8 sm:h-9 md:h-10" 
-                : "bg-white hover:bg-gray-100 text-purple-900 border-2 border-white text-[10px] xs:text-xs sm:text-sm md:text-base px-2 xs:px-3 sm:px-4 md:px-6 py-1 xs:py-1.5 sm:py-2 font-semibold h-7 xs:h-8 sm:h-9 md:h-10"}
-            >
-              <Ghost className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 mr-0.5 xs:mr-1 sm:mr-1.5 md:mr-2" />
-              <span>Display</span>
-            </Button>
-            <Button
               variant={currentPage === 'vote' ? 'default' : 'outline'}
               onClick={() => onNavigate('vote')}
               size="sm"
@@ -42,7 +31,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
                 ? "bg-purple-600 hover:bg-purple-700 text-white border-2 border-purple-400 text-[10px] xs:text-xs sm:text-sm md:text-base px-2 xs:px-3 sm:px-4 md:px-6 py-1 xs:py-1.5 sm:py-2 font-semibold shadow-lg h-7 xs:h-8 sm:h-9 md:h-10" 
                 : "bg-white hover:bg-gray-100 text-purple-900 border-2 border-white text-[10px] xs:text-xs sm:text-sm md:text-base px-2 xs:px-3 sm:px-4 md:px-6 py-1 xs:py-1.5 sm:py-2 font-semibold h-7 xs:h-8 sm:h-9 md:h-10"}
             >
-              <Vote className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 mr-0.5 xs:mr-1 sm:mr-1.5 md:mr-2" />
+              <Vote className="w-2.5 h-2.5 xs:w-3 xs:h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 mr-0.5 xs:mr-1 sm:mr-1.5 md:mr-2" />
               <span>Vote</span>
             </Button>
             <Button
@@ -53,7 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
                 ? "bg-purple-600 hover:bg-purple-700 text-white border-2 border-purple-400 text-[10px] xs:text-xs sm:text-sm md:text-base px-2 xs:px-3 sm:px-4 md:px-6 py-1 xs:py-1.5 sm:py-2 font-semibold shadow-lg h-7 xs:h-8 sm:h-9 md:h-10" 
                 : "bg-white hover:bg-gray-100 text-purple-900 border-2 border-white text-[10px] xs:text-xs sm:text-sm md:text-base px-2 xs:px-3 sm:px-4 md:px-6 py-1 xs:py-1.5 sm:py-2 font-semibold h-7 xs:h-8 sm:h-9 md:h-10"}
             >
-              <Trophy className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 mr-0.5 xs:mr-1 sm:mr-1.5 md:mr-2" />
+              <Trophy className="w-2.5 h-2.5 xs:w-3 xs:h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 mr-0.5 xs:mr-1 sm:mr-1.5 md:mr-2" />
               <span>Games</span>
             </Button>
             <Button
@@ -64,7 +53,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
                 ? "bg-purple-600 hover:bg-purple-700 text-white border-2 border-purple-400 text-[10px] xs:text-xs sm:text-sm md:text-base px-2 xs:px-3 sm:px-4 md:px-6 py-1 xs:py-1.5 sm:py-2 font-semibold shadow-lg h-7 xs:h-8 sm:h-9 md:h-10" 
                 : "bg-white hover:bg-gray-100 text-purple-900 border-2 border-white text-[10px] xs:text-xs sm:text-sm md:text-base px-2 xs:px-3 sm:px-4 md:px-6 py-1 xs:py-1.5 sm:py-2 font-semibold h-7 xs:h-8 sm:h-9 md:h-10"}
             >
-              <Shield className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 mr-0.5 xs:mr-1 sm:mr-1.5 md:mr-2" />
+              <Shield className="w-2.5 h-2.5 xs:w-3 xs:h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 mr-0.5 xs:mr-1 sm:mr-1.5 md:mr-2" />
               <span>Admin</span>
             </Button>
           </div>

@@ -26,7 +26,11 @@ router.get('/', async (req, res) => {
     }
 
     // Get all votes (admin)
-    if (adminPassword === process.env.ADMIN_PASSWORD) {
+    if (adminPassword) {
+      if (adminPassword !== process.env.ADMIN_PASSWORD) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      
       const [votes] = await db.query(`
         SELECT 
           v.id,
