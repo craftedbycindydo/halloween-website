@@ -14,9 +14,6 @@ interface AdminPageProps {
   onDeleteContestant: (id: string, adminPassword: string) => Promise<void>;
 }
 
-// Secure password - using environment variable concept
-const ADMIN_PASSWORD = 'SpookyAdmin2024!';
-
 export const AdminPage: React.FC<AdminPageProps> = ({ 
   contestants, 
   onAddContestant,
@@ -25,6 +22,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [votes, setVotes] = useState<Vote[]>([]);
   const [password, setPassword] = useState('');
+  const [adminPassword, setAdminPassword] = useState(''); // Store authenticated password
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   
@@ -37,18 +35,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [showResults, setShowResults] = useState(false);
   const [resultsPassword, setResultsPassword] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simple XOR encryption to make it harder to find via inspect
-    const encoded = btoa(password);
-    const correct = btoa(ADMIN_PASSWORD);
-    
-    if (encoded === correct) {
+    // Verify password with API by attempting to fetch votes
+    try {
+      await votesAPI.getAll(password);
+      // If successful, store the password and authenticate
+      setAdminPassword(password);
       setIsAuthenticated(true);
       setError('');
       setPassword('');
-    } else {
+    } catch (error: any) {
       setError('Invalid password! Try again, mortal! 👻');
       setPassword('');
     }
@@ -87,14 +85,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     };
 
     try {
-      const encoded = btoa(password);
-      const correct = btoa(ADMIN_PASSWORD);
-      if (encoded !== correct) {
-        setError('Invalid password!');
-        return;
-      }
-
-      await onAddContestant(newContestant, password);
+      await onAddContestant(newContestant, adminPassword);
       setName('');
       setCostume('');
       setImagePreview('');
@@ -109,12 +100,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   };
 
   const handleShowResults = async () => {
-    const encoded = btoa(resultsPassword);
-    const correct = btoa(ADMIN_PASSWORD);
-    
-    if (encoded === correct) {
-      try {
-        const allVotes = await votesAPI.getAll(resultsPassword);
+    try {
+      const allVotes = await votesAPI.getAll(adminPassword);
         // Convert backend format to frontend format
         const formattedVotes: Vote[] = allVotes.map((v: any) => ({
           contestantId: v.contestantId,
@@ -125,15 +112,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         }));
         setVotes(formattedVotes);
         setShowResults(true);
-        setResultsPassword('');
       } catch (error: any) {
         setError('Failed to load votes: ' + error.message);
-        setResultsPassword('');
       }
-    } else {
-      setError('Invalid password for results!');
-      setResultsPassword('');
-    }
   };
 
   // Calculate vote counts
@@ -185,7 +166,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 Enter
               </Button>
               <p className="text-xs text-purple-400 text-center">
-                Hint: Password is "SpookyAdmin2024!"
+                Enter the admin password to continue
               </p>
             </form>
           </CardContent>
@@ -285,25 +266,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="resultsPassword" className="text-purple-300">Enter Password to View Results</Label>
-                <Input
-                  id="resultsPassword"
-                  type="password"
-                  value={resultsPassword}
-                  onChange={(e) => setResultsPassword(e.target.value)}
-                  placeholder="Enter admin password..."
-                  className="bg-black border-orange-500 text-white"
-                />
-              </div>
-              <Button 
-                onClick={handleShowResults} 
-                className="w-full bg-purple-600 hover:bg-purple-700"
-              >
-                Show Leaderboard
-              </Button>
-            </div>
+            <Button 
+              onClick={handleShowResults} 
+              className="w-full bg-purple-600 hover:bg-purple-700"
+            >
+              Show Leaderboard
+            </Button>
           </CardContent>
         </Card>
 
@@ -345,15 +313,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     </div>
                     <div className="flex gap-2">
                             <Button
-                              onClick={async () => {
-                                try {
-                                  const encoded = btoa(password);
-                                  const correct = btoa(ADMIN_PASSWORD);
-                                  if (encoded !== correct) {
-                                    setError('Invalid password! Please login again.');
-                                    return;
-                                  }
-                                  await onDeleteContestant(contestant.id, password);
+                            onClick={async () => {
+                              try {
+                                await onDeleteContestant(contestant.id, adminPassword);
                                 } catch (error: any) {
                                   setError(error.message || 'Failed to delete contestant');
                                 }
