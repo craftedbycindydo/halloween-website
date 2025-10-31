@@ -57,6 +57,19 @@ export const contestantsAPI = {
     }
   },
 
+  async update(contestant: Contestant, adminPassword: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/contestants`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...contestant, adminPassword })
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update contestant');
+    }
+  },
+
   async delete(id: string, adminPassword: string): Promise<void> {
     const response = await fetch(`${API_BASE}/contestants`, {
       method: 'DELETE',

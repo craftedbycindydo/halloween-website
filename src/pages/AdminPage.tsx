@@ -4,19 +4,21 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Lock, Plus, Eye, EyeOff, Trash2, Trophy, Gamepad2, Crown, Award } from 'lucide-react';
+import { Lock, Plus, Eye, EyeOff, Trash2, Trophy, Gamepad2, Crown, Award, Edit } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
 import { votesAPI, gamesAPI, contestAPI } from '../services/api';
 
 interface AdminPageProps {
   contestants: Contestant[];
   onAddContestant: (contestant: Contestant, adminPassword: string) => Promise<void>;
+  onUpdateContestant: (contestant: Contestant, adminPassword: string) => Promise<void>;
   onDeleteContestant: (id: string, adminPassword: string) => Promise<void>;
 }
 
 export const AdminPage: React.FC<AdminPageProps> = ({ 
   contestants, 
   onAddContestant,
+  onUpdateContestant,
   onDeleteContestant
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -31,6 +33,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [name, setName] = useState('');
   const [costume, setCostume] = useState('');
   const [imagePreview, setImagePreview] = useState<string>('');
+  
+  // Edit contestant
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editingContestant, setEditingContestant] = useState<Contestant | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editCostume, setEditCostume] = useState('');
+  const [editImagePreview, setEditImagePreview] = useState<string>('');
   
   // Results dialog
   const [showResults, setShowResults] = useState(false);
@@ -135,6 +144,59 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       if (fileInput) fileInput.value = '';
     } catch (error: any) {
       setError(error.message || 'Failed to add contestant');
+    }
+  };
+
+  const handleOpenEditDialog = (contestant: Contestant) => {
+    setEditingContestant(contestant);
+    setEditName(contestant.name);
+    setEditCostume(contestant.costume);
+    setEditImagePreview(contestant.imageUrl || '');
+    setShowEditDialog(true);
+    setError('');
+  };
+
+  const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size must be less than 5MB');
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUpdateContestant = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    
+    if (!editingContestant || !editName || !editCostume) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    const updatedContestant: Contestant = {
+      ...editingContestant,
+      name: editName,
+      costume: editCostume,
+      imageUrl: editImagePreview,
+    };
+
+    try {
+      await onUpdateContestant(updatedContestant, adminPassword);
+      setShowEditDialog(false);
+      setEditingContestant(null);
+      setEditName('');
+      setEditCostume('');
+      setEditImagePreview('');
+    } catch (error: any) {
+      setError(error.message || 'Failed to update contestant');
     }
   };
 
@@ -547,6 +609,15 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     </div>
                     <div className="flex gap-2">
                             <Button
+                              onClick={() => handleOpenEditDialog(contestant)}
+                              variant="outline"
+                              size="sm"
+                              className="border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white"
+                              title="Edit contestant"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
                             onClick={async () => {
                               try {
                                 await onDeleteContestant(contestant.id, adminPassword);
@@ -957,6 +1028,95 @@ export const AdminPage: React.FC<AdminPageProps> = ({
           </div>
 
           {error && <p className="text-red-400 text-sm mt-4">{error}</p>}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Contestant Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="bg-black border-orange-500 max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-3xl text-orange-500 flex items-center gap-2">
+              <Edit className="w-8 h-8" />
+              Edit Contestant
+            </DialogTitle>
+            <DialogDescription className="text-purple-200">
+              Update contestant information
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleUpdateContestant} className="space-y-4">
+            <div>
+              <Label htmlFor="editName" className="text-purple-300">Name</Label>
+              <Input
+                id="editName"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Contestant name..."
+                className="bg-black border-orange-500 text-white"
+              />
+            </div>
+            <div>
+              <Label htmlFor="editCostume" className="text-purple-300">Costume</Label>
+              <Input
+                id="editCostume"
+                value={editCostume}
+                onChange={(e) => setEditCostume(e.target.value)}
+                placeholder="What are they dressed as..."
+                className="bg-black border-orange-500 text-white"
+              />
+            </div>
+            <div>
+              <Label htmlFor="editImageFile" className="text-purple-300">Upload Image (optional, max 5MB)</Label>
+              <input
+                id="editImageFile"
+                type="file"
+                accept="image/*"
+                onChange={handleEditImageChange}
+                className="w-full bg-black border-2 border-orange-500 rounded-lg text-purple-300 p-3
+                  file:mr-4 file:py-2 file:px-6 file:rounded-full file:border-0 
+                  file:text-sm file:font-semibold file:bg-orange-600 file:text-white 
+                  hover:file:bg-orange-700 file:cursor-pointer cursor-pointer text-sm
+                  focus:outline-none focus:ring-2 focus:ring-orange-500"
+              />
+              {editImagePreview && (
+                <div className="mt-2 relative inline-block">
+                  <img 
+                    src={editImagePreview} 
+                    alt="Preview" 
+                    className="w-32 h-32 object-cover rounded-lg border-2 border-orange-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditImagePreview('');
+                      const fileInput = document.getElementById('editImageFile') as HTMLInputElement;
+                      if (fileInput) fileInput.value = '';
+                    }}
+                    className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+            </div>
+            {error && <p className="text-red-400 text-sm">{error}</p>}
+            <div className="flex gap-2">
+              <Button 
+                type="submit" 
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+              >
+                Update Contestant
+              </Button>
+              <Button 
+                type="button"
+                onClick={() => setShowEditDialog(false)}
+                variant="outline"
+                className="border-gray-500 text-gray-300 hover:bg-gray-700"
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

@@ -16,6 +16,7 @@ export const VotePage: React.FC<VotePageProps> = ({ contestants }) => {
   const [selectedContestant, setSelectedContestant] = useState<string | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [message, setMessage] = useState('');
+  const [isError, setIsError] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
   const [hasChanged, setHasChanged] = useState(false);
   const [currentVote, setCurrentVote] = useState<string | null>(null);
@@ -45,12 +46,14 @@ export const VotePage: React.FC<VotePageProps> = ({ contestants }) => {
   const handleVote = async () => {
     if (!voterName.trim()) {
       setMessage('Please enter your name!');
+      setIsError(true);
       setShowDialog(true);
       return;
     }
 
     if (!selectedContestant) {
       setMessage('Please select a contestant!');
+      setIsError(true);
       setShowDialog(true);
       return;
     }
@@ -59,6 +62,7 @@ export const VotePage: React.FC<VotePageProps> = ({ contestants }) => {
       const result = await votesAPI.submit(selectedContestant, voterName.trim());
       const contestantName = contestants.find(c => c.id === selectedContestant)?.name;
       
+      setIsError(false);
       if (result.changed) {
         setMessage(`Your vote has been changed to ${contestantName}! 🎃\n\n⚠️ Your vote is now locked. No more changes allowed!`);
         setHasChanged(true);
@@ -71,6 +75,7 @@ export const VotePage: React.FC<VotePageProps> = ({ contestants }) => {
       setShowDialog(true);
     } catch (error: any) {
       setMessage(error.message || 'Failed to submit vote');
+      setIsError(true);
       setShowDialog(true);
     }
   };
@@ -167,10 +172,10 @@ export const VotePage: React.FC<VotePageProps> = ({ contestants }) => {
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="bg-black border-orange-500 shadow-2xl shadow-orange-900/50">
           <DialogHeader>
-            <DialogTitle className="text-orange-500 text-2xl">
-              {hasVoted && selectedContestant ? 'Vote Changed!' : 'Vote Submitted!'}
+            <DialogTitle className={`text-2xl ${isError ? 'text-red-500' : 'text-orange-500'}`}>
+              {isError ? 'Oops! 👻' : hasVoted && selectedContestant ? 'Vote Changed!' : 'Vote Submitted!'}
             </DialogTitle>
-            <DialogDescription className="text-orange-300/80 text-lg">
+            <DialogDescription className={`text-lg ${isError ? 'text-red-300/80' : 'text-orange-300/80'}`}>
               {message}
             </DialogDescription>
           </DialogHeader>

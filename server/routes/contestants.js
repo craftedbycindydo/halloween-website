@@ -43,6 +43,36 @@ router.post('/', async (req, res) => {
   }
 });
 
+// PUT - Update contestant (Admin only)
+router.put('/', async (req, res) => {
+  const { id, name, costume, imageUrl, adminPassword } = req.body;
+
+  // Verify admin password
+  if (adminPassword !== process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  if (!id || !name || !costume) {
+    return res.status(400).json({ error: 'Missing required fields: id, name, costume' });
+  }
+
+  try {
+    const [result] = await db.query(
+      'UPDATE contestants SET name = ?, costume = ?, imageUrl = ? WHERE id = ?',
+      [name, costume, imageUrl || '', id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Contestant not found' });
+    }
+
+    res.json({ message: 'Contestant updated successfully', id });
+  } catch (error) {
+    console.error('Error updating contestant:', error);
+    res.status(500).json({ error: 'Failed to update contestant' });
+  }
+});
+
 // DELETE - Delete contestant (Admin only)
 router.delete('/', async (req, res) => {
   const { id, adminPassword } = req.body;

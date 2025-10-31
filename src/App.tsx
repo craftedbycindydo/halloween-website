@@ -38,6 +38,15 @@ function App() {
     }
   };
 
+  const handleUpdateContestant = async (contestant: Contestant, adminPassword: string) => {
+    try {
+      await contestantsAPI.update(contestant, adminPassword);
+      await loadContestants(); // Reload from backend
+    } catch (error) {
+      throw error; // Let AdminPage handle the error
+    }
+  };
+
   const handleDeleteContestant = async (id: string, adminPassword: string) => {
     try {
       await contestantsAPI.delete(id, adminPassword);
@@ -77,6 +86,7 @@ function App() {
           <AdminPage 
             contestants={contestants}
             onAddContestant={handleAddContestant}
+            onUpdateContestant={handleUpdateContestant}
             onDeleteContestant={handleDeleteContestant}
           />
         )}
