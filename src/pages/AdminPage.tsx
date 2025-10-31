@@ -25,6 +25,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [adminPassword, setAdminPassword] = useState(''); // Store authenticated password
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isValidating, setIsValidating] = useState(true);
   
   // Add contestant form
   const [name, setName] = useState('');
@@ -33,6 +34,29 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   
   // Results dialog
   const [showResults, setShowResults] = useState(false);
+
+  // Check for existing session on mount
+  React.useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const storedPassword = localStorage.getItem('halloween_admin_session');
+        if (storedPassword) {
+          const decrypted = atob(storedPassword);
+          // Verify password is still valid
+          await votesAPI.getAll(decrypted);
+          setAdminPassword(decrypted);
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        // Session invalid, clear it
+        localStorage.removeItem('halloween_admin_session');
+      } finally {
+        setIsValidating(false);
+      }
+    };
+
+    checkSession();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,12 +67,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       // If successful, store the password and authenticate
       setAdminPassword(password);
       setIsAuthenticated(true);
+      // Store encrypted password in localStorage for session persistence
+      localStorage.setItem('halloween_admin_session', btoa(password));
       setError('');
       setPassword('');
     } catch (error: any) {
       setError('Invalid password! Try again, mortal! 👻');
       setPassword('');
     }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setAdminPassword('');
+    localStorage.removeItem('halloween_admin_session');
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -128,6 +160,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     }))
     .sort((a, b) => b.voteCount - a.voteCount);
 
+  // Show loading while validating session
+  if (isValidating) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="text-8xl mb-4 animate-bounce">👻</div>
+          <h2 className="text-3xl font-bold text-orange-500">Loading...</h2>
+        </div>
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -180,9 +224,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         <div className="flex justify-between items-center">
           <h1 className="text-4xl font-bold text-orange-500">Admin Dashboard 🎃</h1>
           <Button
-            onClick={() => setIsAuthenticated(false)}
+            onClick={handleLogout}
             variant="outline"
-            className="border-red-500 text-red-500"
+            className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
           >
             Logout
           </Button>
