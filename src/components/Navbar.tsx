@@ -16,7 +16,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
             className="flex items-center gap-1 sm:gap-2 md:gap-3 cursor-pointer hover:scale-105 transition-transform flex-shrink-0"
             onClick={() => onNavigate('display')}
           >
-            <Ghost className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 text-white drop-shadow-lg" />
             <h1 className="text-sm sm:text-lg md:text-2xl lg:text-3xl xl:text-4xl font-bold text-white drop-shadow-lg">
               <span className="hidden xs:inline">👻 Spooky Contest 🎃</span>
               <span className="xs:hidden">👻 Contest 🎃</span>
