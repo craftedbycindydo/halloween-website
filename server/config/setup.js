@@ -2,8 +2,13 @@ const mysql = require('mysql2/promise');
 require('dotenv').config();
 
 async function setupDatabase() {
-  console.log('🎃 Halloween Contest - Database Setup 👻');
-  console.log('==========================================\n');
+  // Silent mode when called from server startup
+  const isCLI = require.main === module;
+  
+  if (isCLI) {
+    console.log('🎃 Halloween Contest - Database Setup 👻');
+    console.log('==========================================\n');
+  }
 
   // Parse DATABASE_URL if provided (Railway format)
   let dbConfig;
@@ -32,18 +37,18 @@ async function setupDatabase() {
 
   try {
     // Create database
-    console.log('Creating database...');
+    if (isCLI) console.log('Creating database...');
     await connection.query(
       `CREATE DATABASE IF NOT EXISTS \`${dbName}\` 
        CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`
     );
-    console.log(`✅ Database '${dbName}' created/verified\n`);
+    if (isCLI) console.log(`✅ Database '${dbName}' created/verified\n`);
 
     // Use database
     await connection.query(`USE \`${dbName}\``);
 
     // Create contestants table
-    console.log('Creating contestants table...');
+    if (isCLI) console.log('Creating contestants table...');
     await connection.query(`
       CREATE TABLE IF NOT EXISTS contestants (
         id VARCHAR(50) PRIMARY KEY,
@@ -53,10 +58,10 @@ async function setupDatabase() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
-    console.log('✅ Contestants table created\n');
+    if (isCLI) console.log('✅ Contestants table created\n');
 
     // Create votes table
-    console.log('Creating votes table...');
+    if (isCLI) console.log('Creating votes table...');
     await connection.query(`
       CREATE TABLE IF NOT EXISTS votes (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -72,18 +77,24 @@ async function setupDatabase() {
         INDEX idx_contestant (contestant_id)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
-    console.log('✅ Votes table created\n');
+    if (isCLI) console.log('✅ Votes table created\n');
 
-    console.log('==========================================');
-    console.log('✅ Setup completed successfully!\n');
-    console.log('Next steps:');
-    console.log('1. Start the server: npm start');
-    console.log('2. Visit: http://localhost:3000\n');
-    console.log(`Admin Password: ${process.env.ADMIN_PASSWORD || 'SpookyAdmin2024!'}\n`);
+    if (isCLI) {
+      console.log('==========================================');
+      console.log('✅ Setup completed successfully!\n');
+      console.log('Next steps:');
+      console.log('1. Start the server: npm start');
+      console.log('2. Visit: http://localhost:3000\n');
+      console.log(`Admin Password: ${process.env.ADMIN_PASSWORD || 'SpookyAdmin2024!'}\n`);
+    }
 
   } catch (error) {
-    console.error('❌ Error:', error.message);
-    process.exit(1);
+    console.error('❌ Database setup error:', error.message);
+    if (isCLI) {
+      process.exit(1);
+    } else {
+      throw error; // Re-throw for server to handle
+    }
   } finally {
     await connection.end();
   }

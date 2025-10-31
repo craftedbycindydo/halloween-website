@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
+const setupDatabase = require('./config/setup');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -41,18 +42,38 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log('');
-  console.log('🎃👻 Halloween Contest Server 👻🎃');
-  console.log('=====================================');
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📡 API: http://localhost:${PORT}/api`);
-  console.log(`🏥 Health: http://localhost:${PORT}/health`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log('=====================================');
-  console.log('');
-});
+// Auto-initialize database and start server
+async function startServer() {
+  try {
+    console.log('');
+    console.log('🎃👻 Halloween Contest Server 👻🎃');
+    console.log('=====================================');
+    console.log('⏳ Initializing database...');
+    
+    // Auto-setup database tables
+    await setupDatabase();
+    
+    console.log('✅ Database ready!');
+    console.log('=====================================');
+    
+    // Start server
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`📡 API: http://localhost:${PORT}/api`);
+      console.log(`🏥 Health: http://localhost:${PORT}/health`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log('=====================================');
+      console.log('');
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error.message);
+    console.error('Please check your database configuration and try again.');
+    process.exit(1);
+  }
+}
+
+// Start the server
+startServer();
 
 module.exports = app;
 
