@@ -28,10 +28,20 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'Missing required fields: id, name, costume' });
   }
 
+  // Validate imageUrl if provided
+  let validImageUrl = '';
+  if (imageUrl && imageUrl.trim()) {
+    if (imageUrl.startsWith('data:image/')) {
+      validImageUrl = imageUrl;
+    } else {
+      console.warn('Invalid image URL format, ignoring');
+    }
+  }
+
   try {
     await db.query(
       'INSERT INTO contestants (id, name, costume, imageUrl) VALUES (?, ?, ?, ?)',
-      [id, name, costume, imageUrl || '']
+      [id, name, costume, validImageUrl]
     );
     res.status(201).json({ message: 'Contestant added successfully', id });
   } catch (error) {
@@ -56,10 +66,20 @@ router.put('/', async (req, res) => {
     return res.status(400).json({ error: 'Missing required fields: id, name, costume' });
   }
 
+  // Validate imageUrl if provided
+  let validImageUrl = '';
+  if (imageUrl && imageUrl.trim()) {
+    if (imageUrl.startsWith('data:image/')) {
+      validImageUrl = imageUrl;
+    } else {
+      console.warn('Invalid image URL format, ignoring');
+    }
+  }
+
   try {
     const [result] = await db.query(
       'UPDATE contestants SET name = ?, costume = ?, imageUrl = ? WHERE id = ?',
-      [name, costume, imageUrl || '', id]
+      [name, costume, validImageUrl, id]
     );
 
     if (result.affectedRows === 0) {

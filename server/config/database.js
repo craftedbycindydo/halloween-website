@@ -31,7 +31,8 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  charset: 'utf8mb4'
+  charset: 'utf8mb4',
+  maxAllowedPacket: 64 * 1024 * 1024 // 64MB for large base64 images
 });
 
 // Test connection
