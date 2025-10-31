@@ -63,7 +63,7 @@ function App() {
       <FloatingDecorations />
       <Navbar currentPage={currentPage} onNavigate={setCurrentPage} />
       
-      <main className="flex-1 relative z-10 overflow-y-auto">
+      <main className="flex-1 relative overflow-y-auto">
         {currentPage === 'display' && (
           <DisplayPage contestants={contestants} />
         )}

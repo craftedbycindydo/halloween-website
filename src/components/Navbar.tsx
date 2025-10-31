@@ -9,7 +9,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/30 backdrop-blur-md border-b-2 border-orange-500/50">
+    <nav className="flex-shrink-0 z-50 bg-black/30 backdrop-blur-md border-b-2 border-orange-500/50">
       <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3 md:py-4">
         <div className="flex items-center justify-between gap-2">
           <div 
