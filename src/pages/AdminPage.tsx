@@ -430,15 +430,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               </div>
               <div>
                 <Label htmlFor="imageFile" className="text-purple-300">Upload Image (optional, max 5MB)</Label>
-                <Input
+                <input
                   id="imageFile"
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="w-full bg-black border-2 border-orange-500 rounded-lg text-purple-300 p-2 
-                    file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 
+                  className="w-full bg-black border-2 border-orange-500 rounded-lg text-purple-300 p-3
+                    file:mr-4 file:py-2 file:px-6 file:rounded-full file:border-0 
                     file:text-sm file:font-semibold file:bg-orange-600 file:text-white 
-                    hover:file:bg-orange-700 file:cursor-pointer cursor-pointer text-sm"
+                    hover:file:bg-orange-700 file:cursor-pointer cursor-pointer text-sm
+                    focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
                 {imagePreview && (
                   <div className="mt-2 relative inline-block">
