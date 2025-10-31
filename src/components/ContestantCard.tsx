@@ -94,11 +94,11 @@ export const ContestantCard: React.FC<ContestantCardProps> = ({ contestant, vote
                   <div className="text-4xl animate-pulse">⏳</div>
                 </div>
               )}
-              <img 
+            <img 
                 key={`${contestant.id}-${retryCount}`}
                 src={imageSrc || ''} 
-                alt={contestant.name}
-                className="w-full h-full object-cover"
+              alt={contestant.name}
+              className="w-full h-full object-cover"
                 onError={handleImageError}
                 onLoad={handleImageLoad}
                 loading="lazy"

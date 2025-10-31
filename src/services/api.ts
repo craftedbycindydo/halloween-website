@@ -1,6 +1,25 @@
 import { Contestant, Vote } from '../types';
 
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+// Dynamically determine API base URL
+const getApiBase = () => {
+  // If explicitly set in env, use it
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  
+  // In production, use relative path (same domain as frontend)
+  if (process.env.NODE_ENV === 'production' || window.location.hostname !== 'localhost') {
+    return '/api';
+  }
+  
+  // In development, use localhost with port
+  return 'http://localhost:8000/api';
+};
+
+const API_BASE = getApiBase();
+
+// Log API base for debugging
+console.log('🎃 API Base URL:', API_BASE);
 
 // Generate device fingerprint
 export const generateDeviceId = (): string => {
@@ -39,9 +58,22 @@ const deviceId = getDeviceId();
 // Contestants API
 export const contestantsAPI = {
   async getAll(): Promise<Contestant[]> {
-    const response = await fetch(`${API_BASE}/contestants`);
-    if (!response.ok) throw new Error('Failed to fetch contestants');
-    return response.json();
+    const url = `${API_BASE}/contestants`;
+    console.log('🎃 Fetching contestants from:', url);
+    try {
+      const response = await fetch(url);
+      console.log('🎃 Response status:', response.status);
+      if (!response.ok) {
+        console.error('❌ Failed to fetch contestants:', response.status, response.statusText);
+        throw new Error(`Failed to fetch contestants: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      console.log('✅ Contestants loaded:', data.length);
+      return data;
+    } catch (error) {
+      console.error('❌ Error fetching contestants:', error);
+      throw error;
+    }
   },
 
   async add(contestant: Omit<Contestant, 'id'> & { id: string }, adminPassword: string): Promise<void> {
