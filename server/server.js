@@ -18,6 +18,8 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // API Routes
 app.use('/api/contestants', require('./routes/contestants'));
 app.use('/api/votes', require('./routes/votes'));
+app.use('/api/games', require('./routes/games'));
+app.use('/api/contest', require('./routes/contest'));
 
 // Health check
 app.get('/health', (req, res) => {

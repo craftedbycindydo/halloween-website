@@ -79,6 +79,51 @@ async function setupDatabase() {
     `);
     if (isCLI) console.log('✅ Votes table created\n');
 
+    // Create games table
+    if (isCLI) console.log('Creating games table...');
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS games (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_created (created_at)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    if (isCLI) console.log('✅ Games table created\n');
+
+    // Create game_winners table
+    if (isCLI) console.log('Creating game_winners table...');
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS game_winners (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        game_id INT NOT NULL,
+        contestant_id VARCHAR(50) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE,
+        FOREIGN KEY (contestant_id) REFERENCES contestants(id) ON DELETE CASCADE,
+        INDEX idx_game (game_id),
+        INDEX idx_contestant (contestant_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    if (isCLI) console.log('✅ Game winners table created\n');
+
+    // Create contest_settings table for storing contest winner
+    if (isCLI) console.log('Creating contest_settings table...');
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS contest_settings (
+        id INT PRIMARY KEY DEFAULT 1,
+        winner_id VARCHAR(50) NULL,
+        winner_published BOOLEAN DEFAULT FALSE,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (winner_id) REFERENCES contestants(id) ON DELETE SET NULL
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    // Insert default row if not exists
+    await connection.query(`
+      INSERT IGNORE INTO contest_settings (id) VALUES (1)
+    `);
+    if (isCLI) console.log('✅ Contest settings table created\n');
+
     if (isCLI) {
       console.log('==========================================');
       console.log('✅ Setup completed successfully!\n');

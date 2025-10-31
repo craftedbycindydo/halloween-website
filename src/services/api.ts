@@ -113,3 +113,126 @@ export const votesAPI = {
   }
 };
 
+// Games API
+export const gamesAPI = {
+  async getAll(): Promise<any[]> {
+    const response = await fetch(`${API_BASE}/games`);
+    if (!response.ok) throw new Error('Failed to fetch games');
+    return response.json();
+  },
+
+  async getLeaderboard(): Promise<any[]> {
+    const response = await fetch(`${API_BASE}/games/leaderboard/overall`);
+    if (!response.ok) throw new Error('Failed to fetch leaderboard');
+    return response.json();
+  },
+
+  async getGameWinners(gameId: number): Promise<any[]> {
+    const response = await fetch(`${API_BASE}/games/${gameId}/winners`);
+    if (!response.ok) throw new Error('Failed to fetch game winners');
+    return response.json();
+  },
+
+  async create(name: string, adminPassword: string): Promise<any> {
+    const response = await fetch(`${API_BASE}/games`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, adminPassword })
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to create game');
+    }
+    
+    return response.json();
+  },
+
+  async addWinner(gameId: number, contestantId: string, adminPassword: string): Promise<any> {
+    const response = await fetch(`${API_BASE}/games/${gameId}/winners`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contestantId, adminPassword })
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to add winner');
+    }
+    
+    return response.json();
+  },
+
+  async deleteGame(gameId: number, adminPassword: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/games/${gameId}?adminPassword=${encodeURIComponent(adminPassword)}`, {
+      method: 'DELETE'
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to delete game');
+    }
+  },
+
+  async removeWinner(gameId: number, winnerId: number, adminPassword: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/games/${gameId}/winners/${winnerId}?adminPassword=${encodeURIComponent(adminPassword)}`, {
+      method: 'DELETE'
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to remove winner');
+    }
+  }
+};
+
+// Contest API
+export const contestAPI = {
+  async getWinner(): Promise<any> {
+    const response = await fetch(`${API_BASE}/contest/winner`);
+    if (!response.ok) throw new Error('Failed to fetch contest winner');
+    return response.json();
+  },
+
+  async setWinner(contestantId: string, publish: boolean, adminPassword: string): Promise<any> {
+    const response = await fetch(`${API_BASE}/contest/winner`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contestantId, publish, adminPassword })
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to set contest winner');
+    }
+    
+    return response.json();
+  },
+
+  async unpublish(adminPassword: string): Promise<any> {
+    const response = await fetch(`${API_BASE}/contest/winner/unpublish`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ adminPassword })
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to unpublish winner');
+    }
+    
+    return response.json();
+  },
+
+  async clear(adminPassword: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/contest/winner?adminPassword=${encodeURIComponent(adminPassword)}`, {
+      method: 'DELETE'
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to clear winner');
+    }
+  }
+};
+

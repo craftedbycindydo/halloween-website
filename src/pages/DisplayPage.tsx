@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSpring, animated, config } from '@react-spring/web';
 import { ContestantCard } from '../components/ContestantCard';
 import { Contestant } from '../types';
+import { contestAPI } from '../services/api';
 
 interface DisplayPageProps {
   contestants: Contestant[];
@@ -80,6 +81,36 @@ const AnimatedCard: React.FC<{ contestant: Contestant; position: CardPosition; i
 
 export const DisplayPage: React.FC<DisplayPageProps> = ({ contestants }) => {
   const [cardPositions, setCardPositions] = useState<CardPosition[]>([]);
+  const [contestWinner, setContestWinner] = useState<any>(null);
+  const [displayContestants, setDisplayContestants] = useState<Contestant[]>(contestants);
+
+  // Check for published contest winner
+  useEffect(() => {
+    const checkWinner = async () => {
+      try {
+        const winner = await contestAPI.getWinner();
+        if (winner && winner.winner_published && winner.winner_id) {
+          setContestWinner(winner);
+          // Only show the winner
+          const winnerContestant = contestants.find(c => c.id === winner.winner_id);
+          if (winnerContestant) {
+            setDisplayContestants([winnerContestant]);
+          }
+        } else {
+          setContestWinner(null);
+          setDisplayContestants(contestants);
+        }
+      } catch (error) {
+        console.error('Error checking contest winner:', error);
+        setDisplayContestants(contestants);
+      }
+    };
+
+    checkWinner();
+    // Poll for winner changes every 5 seconds
+    const interval = setInterval(checkWinner, 5000);
+    return () => clearInterval(interval);
+  }, [contestants]);
 
   useEffect(() => {
     const calculatePositions = () => {
@@ -91,13 +122,20 @@ export const DisplayPage: React.FC<DisplayPageProps> = ({ contestants }) => {
       const availableWidth = window.innerWidth - cardWidth - padding * 2;
       const availableHeight = window.innerHeight - cardHeight - padding * 2;
       
-      // Spread cards randomly across the entire viewport
-      contestants.forEach(() => {
-        const x = padding + Math.random() * availableWidth;
-        const y = padding + Math.random() * availableHeight;
-        
+      // If contest winner is published, center the card
+      if (contestWinner && contestWinner.winner_published && displayContestants.length === 1) {
+        const x = (window.innerWidth - cardWidth) / 2;
+        const y = (window.innerHeight - cardHeight) / 2;
         positions.push({ x, y });
-      });
+      } else {
+        // Spread cards randomly across the entire viewport
+        displayContestants.forEach(() => {
+          const x = padding + Math.random() * availableWidth;
+          const y = padding + Math.random() * availableHeight;
+          
+          positions.push({ x, y });
+        });
+      }
 
       setCardPositions(positions);
     };
@@ -105,9 +143,9 @@ export const DisplayPage: React.FC<DisplayPageProps> = ({ contestants }) => {
     calculatePositions();
     window.addEventListener('resize', calculatePositions);
     return () => window.removeEventListener('resize', calculatePositions);
-  }, [contestants]);
+  }, [displayContestants, contestWinner]);
 
-  if (contestants.length === 0) {
+  if (displayContestants.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
@@ -121,7 +159,18 @@ export const DisplayPage: React.FC<DisplayPageProps> = ({ contestants }) => {
 
   return (
     <div className="relative h-full overflow-hidden">
-      {contestants.map((contestant, index) => {
+      {contestWinner && contestWinner.winner_published && (
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-gradient-to-r from-orange-600 via-yellow-500 to-orange-600 text-black px-8 py-4 rounded-full shadow-2xl shadow-orange-500/50 animate-bounce">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center flex items-center gap-3">
+              <span className="text-3xl sm:text-4xl">👑</span>
+              <span>CONTEST WINNER!</span>
+              <span className="text-3xl sm:text-4xl">👑</span>
+            </h2>
+          </div>
+        </div>
+      )}
+      {displayContestants.map((contestant, index) => {
         const position = cardPositions[index];
         if (!position) return null;
 

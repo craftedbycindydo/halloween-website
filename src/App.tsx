@@ -4,11 +4,12 @@ import { FloatingDecorations } from './components/FloatingDecorations';
 import { DisplayPage } from './pages/DisplayPage';
 import { VotePage } from './pages/VotePage';
 import { AdminPage } from './pages/AdminPage';
+import { GamesPage } from './pages/GamesPage';
 import { Contestant } from './types';
 import { contestantsAPI } from './services/api';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState<'display' | 'vote' | 'admin'>('display');
+  const [currentPage, setCurrentPage] = useState<'display' | 'vote' | 'games' | 'admin'>('display');
   const [contestants, setContestants] = useState<Contestant[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -68,6 +69,9 @@ function App() {
         )}
         {currentPage === 'vote' && (
           <VotePage contestants={contestants} />
+        )}
+        {currentPage === 'games' && (
+          <GamesPage />
         )}
         {currentPage === 'admin' && (
           <AdminPage 

@@ -31,9 +31,9 @@ export const VotePage: React.FC<VotePageProps> = ({ contestants }) => {
       const status = await votesAPI.checkStatus();
       setHasVoted(status.hasVoted);
       if (status.vote) {
-        setHasChanged(status.vote.hasChanged || false);
-        setCurrentVote(status.vote.contestantId);
-        setVoterName(status.vote.voterName);
+        setHasChanged(status.vote.hasChanged || status.vote.has_changed || false);
+        setCurrentVote(status.vote.contestantId || status.vote.contestant_id || null);
+        setVoterName(status.vote.voterName || status.vote.voter_name || '');
       }
     } catch (error) {
       console.error('Error checking vote status:', error);
