@@ -171,7 +171,7 @@ export const VotePage: React.FC<VotePageProps> = ({ contestants }) => {
                 : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 hover:shadow-orange-500/50'
             }`}
           >
-            {hasChanged ? 'Vote Locked 🔒' : hasVoted ? 'Change Vote (Last Chance) 🎃' : 'Submit Vote 👻'}
+            {hasChanged ? 'Vote Locked 🔒' : hasVoted ? 'Change Vote 🎃' : 'Submit Vote 👻'}
           </Button>
         </div>
       </div>
