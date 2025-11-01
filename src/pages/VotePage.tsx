@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ContestantCard } from '../components/ContestantCard';
 import { Contestant } from '../types';
 import { Button } from '../components/ui/button';
@@ -17,31 +17,6 @@ export const VotePage: React.FC<VotePageProps> = ({ contestants }) => {
   const [showDialog, setShowDialog] = useState(false);
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
-  const [hasVoted, setHasVoted] = useState(false);
-  const [hasChanged, setHasChanged] = useState(false);
-  const [currentVote, setCurrentVote] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // Check vote status on mount
-  useEffect(() => {
-    checkVoteStatus();
-  }, []);
-
-  const checkVoteStatus = async () => {
-    try {
-      const status = await votesAPI.checkStatus();
-      setHasVoted(status.hasVoted);
-      if (status.vote) {
-        setHasChanged(status.vote.hasChanged || status.vote.has_changed || false);
-        setCurrentVote(status.vote.contestantId || status.vote.contestant_id || null);
-        setVoterName(status.vote.voterName || status.vote.voter_name || '');
-      }
-    } catch (error) {
-      console.error('Error checking vote status:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleVote = async () => {
     if (!voterName.trim()) {
@@ -59,37 +34,21 @@ export const VotePage: React.FC<VotePageProps> = ({ contestants }) => {
     }
 
     try {
-      const result = await votesAPI.submit(selectedContestant, voterName.trim());
+      await votesAPI.submit(selectedContestant, voterName.trim());
       const contestantName = contestants.find(c => c.id === selectedContestant)?.name;
       
       setIsError(false);
-      if (result.changed) {
-        setMessage(`Your vote has been changed to ${contestantName}! 🎃\n\n⚠️ Your vote is now locked. No more changes allowed!`);
-        setHasChanged(true);
-      } else {
-        setMessage(`Thank you for voting for ${contestantName}! 👻\n\nYou can change your vote once if needed.`);
-        setHasVoted(true);
-      }
-      
-      setCurrentVote(selectedContestant);
+      setMessage(`Thank you for voting for ${contestantName}! 👻\n\nFeel free to vote again!`);
       setShowDialog(true);
+      
+      // Reset form after successful vote
+      setSelectedContestant(null);
     } catch (error: any) {
       setMessage(error.message || 'Failed to submit vote');
       setIsError(true);
       setShowDialog(true);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="text-8xl mb-4 animate-bounce">👻</div>
-          <h2 className="text-3xl font-bold text-orange-500">Loading...</h2>
-        </div>
-      </div>
-    );
-  }
 
   if (contestants.length === 0) {
     return (
@@ -120,17 +79,6 @@ export const VotePage: React.FC<VotePageProps> = ({ contestants }) => {
                 placeholder="Enter your name..."
                 className="bg-black border-orange-500 text-white placeholder:text-orange-400/50"
               />
-              {hasVoted && !hasChanged && currentVote && (
-                <p className="text-xs sm:text-sm text-orange-400 mt-2">
-                  You've already voted for {contestants.find(c => c.id === currentVote)?.name}. 
-                  You can change your vote once!
-                </p>
-              )}
-              {hasChanged && (
-                <p className="text-xs sm:text-sm text-red-400 mt-2 font-semibold">
-                  ⚠️ You have already changed your vote. No more changes allowed!
-                </p>
-              )}
             </div>
 
             <div>
@@ -141,8 +89,8 @@ export const VotePage: React.FC<VotePageProps> = ({ contestants }) => {
         </div>
       </div>
 
-      {/* Grid of contestants - 3 columns on mobile */}
-      <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-6 mt-4">
+      {/* Grid of contestants - 2 columns on mobile, responsive */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mt-4">
         {contestants.map((contestant) => (
           <div
             key={contestant.id}
@@ -164,14 +112,9 @@ export const VotePage: React.FC<VotePageProps> = ({ contestants }) => {
           <Button
             onClick={handleVote}
             size="lg"
-            disabled={hasChanged}
-            className={`text-white text-base sm:text-xl px-8 sm:px-12 py-4 sm:py-6 shadow-xl w-full sm:w-auto ${
-              hasChanged 
-                ? 'bg-gray-600 cursor-not-allowed' 
-                : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 hover:shadow-orange-500/50'
-            }`}
+            className="text-white text-base sm:text-xl px-8 sm:px-12 py-4 sm:py-6 shadow-xl w-full sm:w-auto bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 hover:shadow-orange-500/50"
           >
-            {hasChanged ? 'Vote Locked 🔒' : hasVoted ? 'Change Vote 🎃' : 'Submit Vote 👻'}
+            Submit Vote 👻
           </Button>
         </div>
       </div>
@@ -180,7 +123,7 @@ export const VotePage: React.FC<VotePageProps> = ({ contestants }) => {
         <DialogContent className="bg-black border-orange-500 shadow-2xl shadow-orange-900/50">
           <DialogHeader>
             <DialogTitle className={`text-2xl ${isError ? 'text-red-500' : 'text-orange-500'}`}>
-              {isError ? 'Oops! 👻' : hasVoted && selectedContestant ? 'Vote Changed!' : 'Vote Submitted!'}
+              {isError ? 'Oops! 👻' : 'Vote Submitted! 🎃'}
             </DialogTitle>
             <DialogDescription className={`text-lg ${isError ? 'text-red-300/80' : 'text-orange-300/80'}`}>
               {message}

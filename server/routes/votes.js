@@ -61,80 +61,34 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST - Submit or change vote
+// POST - Submit vote (no device lock, unlimited voting)
 router.post('/', async (req, res) => {
   const { contestantId, voterName } = req.body;
-  const deviceId = req.headers['x-device-id'];
-
-  if (!deviceId) {
-    return res.status(400).json({ error: 'Device ID required in headers' });
-  }
+  const deviceId = req.headers['x-device-id'] || 'anonymous';
 
   if (!contestantId || !voterName) {
     return res.status(400).json({ error: 'Missing required fields: contestantId, voterName' });
   }
 
-  const connection = await db.getConnection();
-
   try {
-    await connection.beginTransaction();
-
-    // Check if device has already voted
-    const [existingVotes] = await connection.query(
-      'SELECT * FROM votes WHERE device_id = ?',
-      [deviceId]
+    // Simply insert new vote every time (no restrictions)
+    await db.query(
+      'INSERT INTO votes (contestant_id, voter_name, device_id, timestamp, has_changed) VALUES (?, ?, ?, ?, FALSE)',
+      [contestantId, voterName, deviceId, Date.now()]
     );
 
-    const existingVote = existingVotes[0];
-
-    // If already voted and changed, don't allow another change
-    if (existingVote && existingVote.has_changed) {
-      await connection.rollback();
-      return res.status(403).json({ 
-        error: 'You have already changed your vote. No more changes allowed.' 
-      });
-    }
-
-    if (existingVote) {
-      // Update existing vote (first change)
-      await connection.query(
-        `UPDATE votes 
-         SET contestant_id = ?, voter_name = ?, timestamp = ?, has_changed = TRUE 
-         WHERE device_id = ?`,
-        [contestantId, voterName, Date.now(), deviceId]
-      );
-
-      await connection.commit();
-      return res.json({
-        message: 'Vote changed successfully',
-        changed: true,
-        locked: true
-      });
-    } else {
-      // Insert new vote
-      await connection.query(
-        'INSERT INTO votes (contestant_id, voter_name, device_id, timestamp, has_changed) VALUES (?, ?, ?, ?, FALSE)',
-        [contestantId, voterName, deviceId, Date.now()]
-      );
-
-      await connection.commit();
-      return res.status(201).json({
-        message: 'Vote submitted successfully',
-        changed: false,
-        locked: false
-      });
-    }
+    return res.status(201).json({
+      message: 'Vote submitted successfully',
+      changed: false,
+      locked: false
+    });
   } catch (error) {
-    await connection.rollback();
-    
     if (error.code === 'ER_NO_REFERENCED_ROW_2') {
       return res.status(400).json({ error: 'Contestant not found' });
     }
     
     console.error('Error submitting vote:', error);
     res.status(500).json({ error: 'Failed to submit vote' });
-  } finally {
-    connection.release();
   }
 });
 
