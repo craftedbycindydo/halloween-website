@@ -104,48 +104,52 @@ export const VotePage: React.FC<VotePageProps> = ({ contestants }) => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 min-h-full">
-      <div className="max-w-4xl mx-auto mb-8 bg-black/90 p-6 rounded-xl border-2 border-orange-500 shadow-2xl shadow-orange-900/50">
-        <h2 className="text-3xl font-bold text-orange-500 mb-4 text-center">Cast Your Vote! 👻</h2>
-        
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="voterName" className="text-purple-300">Your Name</Label>
-            <Input
-              id="voterName"
-              value={voterName}
-              onChange={(e) => setVoterName(e.target.value)}
-              placeholder="Enter your name..."
-              className="bg-black border-orange-500 text-white placeholder:text-orange-400/50"
-            />
-            {hasVoted && !hasChanged && currentVote && (
-              <p className="text-sm text-orange-400 mt-2">
-                You've already voted for {contestants.find(c => c.id === currentVote)?.name}. 
-                You can change your vote once!
-              </p>
-            )}
-            {hasChanged && (
-              <p className="text-sm text-red-400 mt-2 font-semibold">
-                ⚠️ You have already changed your vote. No more changes allowed!
-              </p>
-            )}
-          </div>
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 pb-24">
+      {/* Sticky vote form at top */}
+      <div className="sticky top-0 z-40 bg-gradient-to-br from-black via-purple-950 to-black pb-4">
+        <div className="max-w-4xl mx-auto bg-black/90 p-4 sm:p-6 rounded-xl border-2 border-orange-500 shadow-2xl shadow-orange-900/50">
+          <h2 className="text-2xl sm:text-3xl font-bold text-orange-500 mb-3 sm:mb-4 text-center">Cast Your Vote! 👻</h2>
+          
+          <div className="space-y-3 sm:space-y-4">
+            <div>
+              <Label htmlFor="voterName" className="text-purple-300 text-sm sm:text-base">Your Name</Label>
+              <Input
+                id="voterName"
+                value={voterName}
+                onChange={(e) => setVoterName(e.target.value)}
+                placeholder="Enter your name..."
+                className="bg-black border-orange-500 text-white placeholder:text-orange-400/50"
+              />
+              {hasVoted && !hasChanged && currentVote && (
+                <p className="text-xs sm:text-sm text-orange-400 mt-2">
+                  You've already voted for {contestants.find(c => c.id === currentVote)?.name}. 
+                  You can change your vote once!
+                </p>
+              )}
+              {hasChanged && (
+                <p className="text-xs sm:text-sm text-red-400 mt-2 font-semibold">
+                  ⚠️ You have already changed your vote. No more changes allowed!
+                </p>
+              )}
+            </div>
 
-          <div>
-            <Label className="text-purple-300">Select a Contestant</Label>
-            <p className="text-sm text-purple-400 mb-2">Click on a card to select</p>
+            <div>
+              <Label className="text-purple-300 text-sm sm:text-base">Select a Contestant</Label>
+              <p className="text-xs sm:text-sm text-purple-400">Click on a card to select</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      {/* Grid of contestants - 3 columns on mobile */}
+      <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-6 mt-4">
         {contestants.map((contestant) => (
           <div
             key={contestant.id}
             className={`cursor-pointer transform transition-all duration-300 ${
               selectedContestant === contestant.id 
-                ? 'scale-105 ring-4 ring-orange-500 rounded-xl' 
-                : 'hover:scale-102'
+                ? 'scale-105 ring-2 sm:ring-4 ring-orange-500 rounded-xl' 
+                : 'hover:scale-102 active:scale-95'
             }`}
             onClick={() => setSelectedContestant(contestant.id)}
           >
@@ -154,19 +158,22 @@ export const VotePage: React.FC<VotePageProps> = ({ contestants }) => {
         ))}
       </div>
 
-      <div className="flex justify-center">
-        <Button
-          onClick={handleVote}
-          size="lg"
-          disabled={hasChanged}
-          className={`text-white text-xl px-12 py-6 shadow-xl ${
-            hasChanged 
-              ? 'bg-gray-600 cursor-not-allowed' 
-              : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 hover:shadow-orange-500/50'
-          }`}
-        >
-          {hasChanged ? 'Vote Locked 🔒' : hasVoted ? 'Change Vote (Last Chance) 🎃' : 'Submit Vote 👻'}
-        </Button>
+      {/* Fixed submit button at bottom */}
+      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/95 to-transparent p-4 sm:p-6 z-40">
+        <div className="container mx-auto flex justify-center">
+          <Button
+            onClick={handleVote}
+            size="lg"
+            disabled={hasChanged}
+            className={`text-white text-base sm:text-xl px-8 sm:px-12 py-4 sm:py-6 shadow-xl w-full sm:w-auto ${
+              hasChanged 
+                ? 'bg-gray-600 cursor-not-allowed' 
+                : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 hover:shadow-orange-500/50'
+            }`}
+          >
+            {hasChanged ? 'Vote Locked 🔒' : hasVoted ? 'Change Vote (Last Chance) 🎃' : 'Submit Vote 👻'}
+          </Button>
+        </div>
       </div>
 
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
