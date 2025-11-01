@@ -41,12 +41,6 @@ function App() {
   const handleUpdateContestant = async (contestant: Contestant, adminPassword: string) => {
     try {
       await contestantsAPI.update(contestant, adminPassword);
-      // Clear image cache to force reload of updated image
-      try {
-        localStorage.removeItem(`img_cache_${contestant.id}`);
-      } catch (err) {
-        console.warn('Failed to clear image cache:', err);
-      }
       await loadContestants(); // Reload from backend
     } catch (error) {
       throw error; // Let AdminPage handle the error
@@ -56,12 +50,6 @@ function App() {
   const handleDeleteContestant = async (id: string, adminPassword: string) => {
     try {
       await contestantsAPI.delete(id, adminPassword);
-      // Clear image cache for deleted contestant
-      try {
-        localStorage.removeItem(`img_cache_${id}`);
-      } catch (err) {
-        console.warn('Failed to clear image cache:', err);
-      }
       await loadContestants(); // Reload from backend
     } catch (error) {
       throw error; // Let AdminPage handle the error

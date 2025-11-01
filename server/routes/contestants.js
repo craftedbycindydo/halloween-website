@@ -8,6 +8,13 @@ router.get('/', async (req, res) => {
     const [contestants] = await db.query(
       'SELECT id, name, costume, imageUrl FROM contestants ORDER BY created_at DESC'
     );
+    
+    // Add cache headers to improve performance
+    res.set({
+      'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
+      'Content-Type': 'application/json'
+    });
+    
     res.json(contestants);
   } catch (error) {
     console.error('Error fetching contestants:', error);
