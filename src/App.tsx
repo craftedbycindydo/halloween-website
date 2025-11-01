@@ -16,7 +16,35 @@ function App() {
   // Load contestants from backend
   useEffect(() => {
     loadContestants();
+
+    // Auto-refresh every 30 seconds
+    const refreshInterval = setInterval(() => {
+      loadContestants();
+    }, 30000);
+
+    // Reload when page becomes visible (user comes back)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log('🎃 Page became visible, refreshing contestants...');
+        loadContestants();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(refreshInterval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
+
+  // Reload contestants when navigating to display page
+  useEffect(() => {
+    if (currentPage === 'display') {
+      console.log('🎃 Navigated to display page, refreshing contestants...');
+      loadContestants();
+    }
+  }, [currentPage]);
 
   const loadContestants = async () => {
     try {
